@@ -61,6 +61,21 @@ local utils = import 'mixin-utils/utils.libsonnet';
                                  else error 'matcher must be either job or container',
 
                                local replaceClusterMatchers(expr) =
+                                 std.strReplace(
+                                   std.strReplace(
+                                     std.strReplace(
+                                       expr,
+                                       ', cluster="$cluster"',
+                                       ', ' + $._config.per_cluster_label + '="$cluster"',
+                                     ),
+                                     ', cluster=~"$cluster"',
+                                     ', ' + $._config.per_cluster_label + '=~"$cluster"',
+                                   ),
+                                   'cluster="$cluster",',
+                                   $._config.per_cluster_label + '="$cluster",',
+                                 ),
+
+                               local removeClusterMatchers(expr) =
                                  if dashboards['loki-operational.json'].showMultiCluster
                                  then expr
                                  else
@@ -143,7 +158,7 @@ local utils = import 'mixin-utils/utils.libsonnet';
 
 
                                local replaceAllMatchers(expr) =
-                                 replaceMatchers(replaceClusterMatchers(expr)),
+                                 replaceMatchers(removeClusterMatchers(replaceClusterMatchers(expr))),
 
                                local selectDatasource(ds) =
                                  if ds == null || ds == '' then ds
@@ -166,11 +181,11 @@ local utils = import 'mixin-utils/utils.libsonnet';
                                  ),
 
                                local removeInternalComponents(title, expr) = if (title == 'Queries/Second') then
-                                 replaceCortexGateway(expr, 'queryFrontend')
+                                 replaceAllMatchers(replaceCortexGateway(expr, 'queryFrontend'))
                                else if (title == 'Pushes/Second') then
-                                 replaceCortexGateway(expr, 'distributor')
+                                 replaceAllMatchers(replaceCortexGateway(expr, 'distributor'))
                                else if (title == 'Push Latency') then
-                                 replaceCortexGateway(expr, 'distributor')
+                                 replaceAllMatchers(replaceCortexGateway(expr, 'distributor'))
                                else
                                  replaceAllMatchers(expr),
 
