@@ -64,15 +64,19 @@ local utils = import 'mixin-utils/utils.libsonnet';
                                  std.strReplace(
                                    std.strReplace(
                                      std.strReplace(
-                                       expr,
-                                       ', cluster="$cluster"',
-                                       ', ' + $._config.per_cluster_label + '="$cluster"',
+                                       std.strReplace(
+                                         expr,
+                                         ', cluster="$cluster"',
+                                         ', ' + $._config.per_cluster_label + '="$cluster"',
+                                       ),
+                                       ', cluster=~"$cluster"',
+                                       ', ' + $._config.per_cluster_label + '=~"$cluster"',
                                      ),
-                                     ', cluster=~"$cluster"',
-                                     ', ' + $._config.per_cluster_label + '=~"$cluster"',
+                                     'cluster="$cluster",',
+                                     $._config.per_cluster_label + '="$cluster",',
                                    ),
-                                   'cluster="$cluster",',
-                                   $._config.per_cluster_label + '="$cluster",',
+                                   '(cluster_',
+                                   '(' + $._config.per_cluster_label + '_',
                                  ),
 
                                local removeClusterMatchers(expr) =
