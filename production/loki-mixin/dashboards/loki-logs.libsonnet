@@ -31,7 +31,7 @@ local template = import 'grafonnet/template.libsonnet';
     template.custom(
       'level',
       'debug,info,warn,error',
-      '',
+      'info',
       multi=true,
     ),
 
